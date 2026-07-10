@@ -1,16 +1,15 @@
 {
-  "name": "hedera-identity-verification",
+  "name": "credentialmint-client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "axios": "^1.6.2",
-    "react-webcam": "^7.2.0",
     "react-router-dom": "^6.20.0",
     "styled-components": "^6.1.1"
   },
+  "proxy": "http://localhost:4000",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

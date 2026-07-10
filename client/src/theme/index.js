@@ -3,21 +3,21 @@ import { createGlobalStyle } from 'styled-components';
 // Color palette
 export const colors = {
   primary: {
-    main: '#0f1e4e',     // Deep blue (Hedera brand color)
-    light: '#3949ab',    // Lighter blue
-    dark: '#071330',     // Darker blue
+    main: '#16a34a',     // Green (brand color)
+    light: '#22c55e',    // Lighter green
+    dark: '#15803d',     // Darker green
     contrastText: '#ffffff'
   },
   secondary: {
-    main: '#71d3ff',     // Light blue accent
-    light: '#a5e1ff',
-    dark: '#3da5d9',
-    contrastText: '#0f1e4e'
+    main: '#4ade80',     // Bright green accent
+    light: '#86efac',
+    dark: '#22c55e',
+    contrastText: '#052e16'
   },
   success: {
-    main: '#2e7d32',
-    light: '#4caf50',
-    dark: '#1b5e20',
+    main: '#16a34a',
+    light: '#4ade80',
+    dark: '#15803d',
     contrastText: '#ffffff'
   },
   warning: {
@@ -45,7 +45,7 @@ export const colors = {
     900: '#212121'
   },
   background: {
-    default: '#f5f7fa',
+    default: '#ffffff',
     paper: '#ffffff'
   },
   text: {
@@ -223,10 +223,12 @@ export const GlobalStyle = createGlobalStyle`
   }
 `;
 
-export default {
+const theme = {
   colors,
   typography,
   spacing,
   shadows,
   breakpoints
-}; 
+};
+
+export default theme;

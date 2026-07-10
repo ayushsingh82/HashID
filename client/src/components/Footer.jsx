@@ -1,11 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
+import { colors } from '../theme';
 
 const FooterContainer = styled.footer`
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   padding: 20px 0;
   margin-top: 40px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid ${colors.grey[200]};
 `;
 
 const FooterContent = styled.div`
@@ -32,7 +33,7 @@ const Links = styled.div`
   gap: 20px;
   
   a {
-    color: #3949ab;
+    color: ${colors.primary.main};
     text-decoration: none;
     
     &:hover {
@@ -46,12 +47,12 @@ const Footer = () => {
     <FooterContainer>
       <FooterContent>
         <Copyright>
-          © {new Date().getFullYear()} Hedera ID Verify. All rights reserved.
+          © {new Date().getFullYear()} CredentialMint. Built on the CROO Agent Protocol.
         </Copyright>
         <Links>
-          <a href="https://hedera.com" target="_blank" rel="noopener noreferrer">Hedera</a>
-          <a href="https://docs.hedera.com" target="_blank" rel="noopener noreferrer">Documentation</a>
-          <a href="https://github.com/elizaOS/eliza-plugin-hedera" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://croo.network" target="_blank" rel="noopener noreferrer">CROO</a>
+          <a href="https://docs.croo.network" target="_blank" rel="noopener noreferrer">CAP Docs</a>
+          <a href="https://agent.croo.network" target="_blank" rel="noopener noreferrer">Agent Store</a>
         </Links>
       </FooterContent>
     </FooterContainer>
