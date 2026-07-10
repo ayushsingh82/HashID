@@ -1,6 +1,6 @@
 {
-  "short_name": "Hedera ID Verify",
-  "name": "AI-Powered Identity Verification on Hedera",
+  "short_name": "CredentialMint",
+  "name": "CredentialMint — Verified Skill Credentials for AI Agents",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#3949ab",
+  "theme_color": "#16a34a",
   "background_color": "#ffffff"
-} 
+}
