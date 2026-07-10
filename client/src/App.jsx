@@ -6,11 +6,11 @@ import Home from './pages/Home';
 import VerificationProcess from './pages/VerificationProcess';
 import VerificationResult from './pages/VerificationResult';
 import Dashboard from './pages/Dashboard';
-import { HederaProvider } from './context/HederaContext';
+import { CredentialMintProvider } from './context/CredentialMintContext';
 
 function App() {
   return (
-    <HederaProvider>
+    <CredentialMintProvider>
       <div className="app">
         <Header />
         <main className="container">
@@ -23,7 +23,7 @@ function App() {
         </main>
         <Footer />
       </div>
-    </HederaProvider>
+    </CredentialMintProvider>
   );
 }
 
