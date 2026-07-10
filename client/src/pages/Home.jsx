@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { colors, shadows, spacing } from '../theme';
-import { IconTarget, IconChain, IconDocument, IconBolt, IconSearch, IconNetwork, IconCheck, LogoMark } from '../components/icons';
+import { IconTarget, IconChain, IconDocument, IconBolt, IconSearch, IconNetwork, IconCheck } from '../components/icons';
 import { useInView } from '../hooks/useInView';
 
 // Hero Section
@@ -105,6 +105,14 @@ const CredentialCardHeader = styled.div`
   align-items: center;
   gap: 10px;
   margin-bottom: ${spacing(3)};
+
+  img {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
 `;
 
 const CredentialCardTitle = styled.div`
@@ -557,7 +565,7 @@ const Home = () => {
               <CredentialAccent />
               <CredentialBody>
                 <CredentialCardHeader>
-                  <LogoMark size={30} />
+                  <img src="/logo.png" alt="CredentialMint" />
                   <CredentialCardTitle>
                     <div>Skill Verification Report</div>
                     <div>Issued by CredentialMint</div>

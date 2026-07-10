@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { colors } from '../theme';
-import { LogoMark } from './icons';
 
 const HeaderContainer = styled.header`
   background-color: #ffffff;
@@ -35,6 +34,13 @@ const Logo = styled.div`
     gap: 8px;
     color: ${colors.text.primary};
     text-decoration: none;
+  }
+
+  img {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    object-fit: cover;
   }
 `;
 
@@ -86,7 +92,7 @@ const Header = () => {
       <Nav>
         <Logo>
           <Link to="/">
-            <LogoMark size={28} />
+            <img src="/logo.png" alt="CredentialMint" />
             CredentialMint
           </Link>
         </Logo>
@@ -98,7 +104,7 @@ const Header = () => {
 
         <StoreLink
           className="btn"
-          href="https://agent.croo.network"
+          href="https://agent.croo.network/agents/df96b86f-82de-425d-9daa-b8d333b7153f"
           target="_blank"
           rel="noopener noreferrer"
         >

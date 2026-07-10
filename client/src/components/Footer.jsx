@@ -26,16 +26,18 @@ const FooterContent = styled.div`
 const Copyright = styled.p`
   margin: 0;
   color: #757575;
+  font-size: 0.85rem;
 `;
 
 const Links = styled.div`
   display: flex;
   gap: 20px;
-  
+  font-size: 0.85rem;
+
   a {
     color: ${colors.primary.main};
     text-decoration: none;
-    
+
     &:hover {
       text-decoration: underline;
     }
