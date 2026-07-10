@@ -21,8 +21,8 @@ const Step = styled.div`
   text-align: center;
   padding: 15px;
   font-size: 1rem;
-  background-color: ${props => props.active ? colors.primary.main : '#e0e0e0'};
-  color: ${props => props.active ? 'white' : '#757575'};
+  background-color: ${props => props.$active ? colors.primary.main : '#e0e0e0'};
+  color: ${props => props.$active ? 'white' : '#757575'};
   border-radius: 4px;
   margin: 0 5px;
   position: relative;
@@ -153,8 +153,8 @@ const VerificationProcess = () => {
   const handleSubmit = async () => {
     setFormError(null);
     const response = await requestVerification({
-      targetServiceId: target.targetServiceId,
-      testInput: target.testInput || undefined
+      targetServiceId: target.targetServiceId.trim(),
+      testInput: target.testInput.trim() || undefined
     });
 
     if (response.success) {
@@ -177,9 +177,9 @@ const VerificationProcess = () => {
       <h1>Verify an Agent</h1>
 
       <StepIndicator>
-        <Step active={currentStep === 1}>Target Service</Step>
-        <Step active={currentStep === 2}>Test Input</Step>
-        <Step active={currentStep === 3}>Review & Submit</Step>
+        <Step $active={currentStep === 1}>Target Service</Step>
+        <Step $active={currentStep === 2}>Test Input</Step>
+        <Step $active={currentStep === 3}>Review & Submit</Step>
       </StepIndicator>
 
       <StepContent>
@@ -194,11 +194,14 @@ const VerificationProcess = () => {
                 type="text"
                 id="targetServiceId"
                 name="targetServiceId"
-                placeholder="svc_polymarket_wallet_tracker"
+                placeholder="e.g. d9295193-b39c-4d52-adf1-264216ddd82a"
                 value={target.targetServiceId}
                 onChange={handleInputChange}
                 required
               />
+              <small style={{ display: 'block', marginTop: '5px', color: '#757575' }}>
+                Paste the raw serviceId only — no prefix, no surrounding whitespace.
+              </small>
             </FormGroup>
 
             <ButtonContainer>

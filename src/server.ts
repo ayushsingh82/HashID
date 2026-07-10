@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { runBenchmark } from "./benchmark";
 import { addReport, listReports, getReport } from "./reports";
+import { checkLiveness } from "./liveness";
 
 /**
  * Thin HTTP bridge in front of the real CAP integration, used by the React
@@ -27,12 +28,27 @@ app.post("/api/verify", async (req, res) => {
     try {
         const report = await runBenchmark({ targetServiceId, testInput });
         addReport(report);
+        console.log(`[server] verify ${targetServiceId} -> score ${report.score}, verified=${report.verified}`);
         res.json({ success: true, report });
     } catch (err) {
-        res.status(502).json({
-            success: false,
-            error: err instanceof Error ? err.message : "Benchmark failed",
-        });
+        const message = err instanceof Error ? err.message : "Benchmark failed";
+        console.error(`[server] verify ${targetServiceId} failed: ${message}`);
+        res.status(502).json({ success: false, error: message });
+    }
+});
+
+// Free tier: confirms a service exists and reports its public track record
+// via CROO's public Store API. No payment, no CAP order, no CROO_SDK_KEY
+// involved — and NOT a verification credential. Useful to sanity-check a
+// serviceId before spending USDC on a real runBenchmark() order.
+app.get("/api/liveness/:serviceId", async (req, res) => {
+    try {
+        const result = await checkLiveness(req.params.serviceId);
+        res.json({ success: true, liveness: result });
+    } catch (err) {
+        const message = err instanceof Error ? err.message : "Liveness check failed";
+        console.error(`[server] liveness ${req.params.serviceId} failed: ${message}`);
+        res.status(502).json({ success: false, error: message });
     }
 });
 

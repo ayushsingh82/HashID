@@ -5,9 +5,29 @@ import { cap, sdkKey } from "./config";
 import { scoreDelivery } from "./scoring";
 import type { VerificationRequest, VerificationReport } from "./types";
 
-const BENCHMARK_TIMEOUT_MS = 5 * 60 * 1000;
+// Target services can declare SLAs up to 60 min (e.g. VERIS's due-diligence
+// services); this needs to comfortably outlast the slowest realistic target.
+const BENCHMARK_TIMEOUT_MS = 75 * 60 * 1000;
 /** Minimum score (out of 100) a deliverable must reach to count as "verified". */
 const VERIFICATION_THRESHOLD = 60;
+
+/**
+ * CAP requires `requirements` to be syntactically valid JSON regardless of
+ * the target service's requirementType — a "text" service still expects the
+ * text wrapped as a JSON string, not sent raw. Pass JSON through untouched;
+ * wrap anything else as a JSON string.
+ */
+function toRequirementsJson(testInput: string | undefined): string {
+    if (testInput === undefined) {
+        return "{}";
+    }
+    try {
+        JSON.parse(testInput);
+        return testInput;
+    } catch {
+        return JSON.stringify(testInput);
+    }
+}
 
 /**
  * Runs a single benchmark order against a target agent's service and scores
@@ -81,7 +101,7 @@ export async function runBenchmark(request: VerificationRequest): Promise<Verifi
             client
                 .negotiateOrder({
                     serviceId: request.targetServiceId,
-                    requirements: request.testInput ?? "{}",
+                    requirements: toRequirementsJson(request.testInput),
                 })
                 .then((neg) => console.log(`[benchmark] negotiation started: ${neg.negotiationId}`))
                 .catch((err) => settle(() => reject(err instanceof Error ? err : new Error(String(err)))));

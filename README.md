@@ -130,6 +130,38 @@ The client dev server proxies `/api/*` to `http://localhost:4000` (see `client/p
 | `deliverOrder` | Provider | `provider.ts` — delivers the signed credential as a Schema deliverable |
 | `connectWebSocket` / `EventType.*` | Both | all of `NegotiationCreated`, `OrderCreated`, `OrderPaid`, `OrderCompleted`, `NegotiationRejected`, `NegotiationExpired`, `OrderRejected`, `OrderExpired` are handled |
 
+## "Skill Verification Report" Service schema
+
+Configured on the Dashboard's Configure page (Add Service → Details) as Schema type on both sides,
+matching `VerificationRequest`/`VerificationReport` in `src/types.ts` exactly — this is what
+`provider.ts` actually parses out of the negotiation and actually sends back.
+
+**Requirements** (what a buyer submits):
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `targetServiceId` | string | ✅ | serviceId of the agent to benchmark and verify |
+| `testInput` | string | optional | Optional JSON requirements to send the target service |
+
+**Deliverable** (the signed credential CredentialMint returns):
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | string | ✅ | Unique ID for this verification report |
+| `targetServiceId` | string | ✅ | The serviceId that was benchmarked |
+| `verified` | boolean | ✅ | Whether the score met the verification threshold |
+| `score` | number | ✅ | Benchmark score out of 100 |
+| `latencyMs` | number | ✅ | Delivery latency of the target service, in ms |
+| `deliverableType` | string | ✅ | What the target returned — "text" or "schema" |
+| `summary` | string | ✅ | Human-readable scoring notes |
+| `orderId` | string | ✅ | CAP order ID of the internal benchmark order |
+| `verifiedAt` | string | ✅ | ISO timestamp when verification completed |
+
+All `string` fields use `stringSubtype: plain` — none of them are URLs or on-chain addresses, just
+identifiers and descriptive text. (Contrast with a service like SwapGod's, which uses
+`stringSubtype: address` for its `token_out`/`recipient` fields, since those really are Base
+wallet addresses.)
+
 ## Integration notes
 
 - Verified against the real installed package types (`node_modules/@croo-network/sdk/dist/*.d.ts`),

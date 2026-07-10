@@ -92,27 +92,56 @@ that keeps the key server-side while still running 100% real `@croo-network/sdk`
 - [x] Placed a real negotiation against a live third-party Service (DepegGuard's "Stablecoin Depeg
       Signal", `serviceId 54931089-096a-43b1-812a-ebdc412c58d1`) via `POST /api/verify` — confirms
       `negotiateOrder` works end-to-end against the live network, not just against ourselves.
+- [x] Found and fixed: `benchmark.ts` sent raw plain text as `requirements`, but CAP requires
+      `requirements` to be syntactically valid JSON regardless of the target's requirementType.
+      Fixed via `toRequirementsJson()` — passes JSON through, wraps plain text as a JSON string.
+- [x] Found and fixed: `benchmark.ts`'s internal timeout was 5 minutes, shorter than some target
+      services' declared SLA (VERIS goes up to 60 min). Raised to 75 minutes.
+- [x] Found and fixed a real Dashboard misconfiguration: CredentialMint's own Service had
+      Requirements/Deliverable saved as free `text` (with my explanation text pasted in as
+      content) instead of `schema` with real fields. Now both are Schema-typed and match
+      `VerificationRequest`/`VerificationReport` in `src/types.ts` exactly — documented in the
+      README's new "Skill Verification Report Service schema" section.
+- [x] Discovered CROO's public (undocumented) Store API: `GET .../public/services/{serviceId}` and
+      `GET .../public/agents/{agentId}` return real service/agent data with no auth needed — used
+      to resolve 7 real agents' serviceIds into `data/test-agents.json` (SwapGod, remifi, VERIS,
+      AdPilot, OpsPilot, SwapCat, Polymind) for testing against.
+- [x] Added a free "liveness check" tier (`src/liveness.ts`, `GET /api/liveness/:serviceId`) —
+      confirms a service exists and shows its public track record via the same public API, no
+      payment, no CAP order. Explicitly kept separate from real paid verification reports so the
+      two are never confused in the UI or the data model.
+- [x] `pnpm run provider` is running; confirmed via the public API that CredentialMint shows
+      `onlineStatus: "online"` on the Store.
 
 **Not done / explicitly out of scope for now**
-- [ ] Live end-to-end test **not yet confirmed complete** — the DepegGuard negotiation was placed
-      but hadn't reached `OrderCreated`/`payOrder`/`OrderCompleted` as of the last check. Need to
-      confirm a full negotiate → pay → deliver → score cycle finishes.
-- [ ] `benchmark.ts`'s internal timeout (`BENCHMARK_TIMEOUT_MS`) is hardcoded to 5 minutes, shorter
-      than some target services' declared SLA (up to 30 min). Needs raising before relying on this
-      against arbitrary Store agents.
+- [ ] **Blocked on funding**: CredentialMint's AA wallet (`0xd5fBf47c380BAa1c3277876DE9957860F0f7366F`)
+      has $0 USDC, so `negotiateOrder` fails at the payment step — Base's paymaster needs *some*
+      USDC balance to sponsor gas (`PIMLICO_ERROR: sender has no balance of the token for ERC20
+      sponsorship`). Waiting on a small USDC (Base) deposit to that address before a real
+      negotiate → pay → deliver → score cycle can complete.
+- [ ] Once funded: re-run the live test against remifi's "USDC Split Policy"
+      (`d9295193-b39c-4d52-adf1-264216ddd82a`, avg delivery < 1min — best first candidate), then
+      try a few more of the 7 saved agents in `data/test-agents.json` to prove it works across
+      different requirement types (text vs. schema) and agents, not just one.
+- [ ] `testInput` on the live Service's Requirements schema is saved as `required: true`; should be
+      optional. Not blocking, just doesn't match the intended design.
 - [ ] Bulk service *discovery* (list all live services to auto-pick benchmark targets) — the
-      documented SDK has no `listServices`/search method, **but** the Store frontend itself calls
-      an undocumented public REST endpoint, `GET https://api.croo.network/backend/v1/public/agents/{agentId}`,
-      which returns an agent's full service list with real `serviceId`s. Not part of the official
-      SDK surface — worth confirming with CROO before depending on it, but useful for a future
-      "paste an agent link" UX on `/verify` instead of requiring a raw `serviceId`.
+      documented SDK has no `listServices`/search method; the public API above covers this in
+      practice but isn't part of the official SDK surface — worth confirming with CROO before
+      depending on it long-term.
 - [ ] In-memory report store (`src/reports.ts`) resets on server restart — fine for a hackathon
       demo, would need a real DB for production.
+- [ ] **Deploy the provider + API bridge to a persistent host** (Railway, Render, Fly.io, a cheap
+      VPS, etc.) instead of running locally. `onlineStatus` is tied directly to the WebSocket
+      connection staying open — the moment this laptop's dev session stops, CredentialMint flips
+      back to `offline` on the Store. Needed if the listing has to stay live/discoverable outside
+      active work sessions (e.g. for judges checking independently).
 - [ ] Demo video (max 5 min) and DoraHacks BUIDL filing.
 
 ## Next steps, in order
 
-1. Confirm the live DepegGuard test order settles end-to-end (negotiate → pay → deliver → score).
-2. Raise `BENCHMARK_TIMEOUT_MS` to comfortably exceed a 30-min target SLA.
-3. Run `pnpm run provider` so CredentialMint is online and can accept real buyer orders on the Store.
+1. Fund `0xd5fBf47c380BAa1c3277876DE9957860F0f7366F` with a small amount of USDC on Base.
+2. Retry the real end-to-end test against remifi, then a few more of the 7 saved agents.
+3. Deploy the provider + API bridge to a persistent host (Railway/Render/Fly.io/VPS) so
+   CredentialMint stays online without a laptop dev session running.
 4. Record the demo video and file the DoraHacks BUIDL.
