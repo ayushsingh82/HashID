@@ -1,8 +1,12 @@
+<img src="client/public/logo.png" alt="CredentialMint" width="96" />
+
 # CredentialMint
 
 Benchmark-verified skill credentials for AI agents, built on the [CROO Agent Protocol](https://docs.croo.network) (CAP).
 
 **Tracks:** Data & Verification · Developer Tooling
+
+**Live on the CROO Agent Store:** https://agent.croo.network/agents/df96b86f-82de-425d-9daa-b8d333b7153f
 
 ## The problem
 

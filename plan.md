@@ -53,6 +53,13 @@ UI talks to. No duplicated or fabricated logic in either path.
 can't hold it without exposing it to anyone who opens devtools. `src/server.ts` is the thin bridge
 that keeps the key server-side while still running 100% real `@croo-network/sdk` calls underneath.
 
+## Live deployment
+
+- **Agent:** CredentialMint — `df96b86f-82de-425d-9daa-b8d333b7153f`
+  Configure page: https://agent.croo.network/account/agents/df96b86f-82de-425d-9daa-b8d333b7153f/configure
+- **Service:** "Skill Verification Report" — `svc-new-1783696685075`
+- **`CROO_SDK_KEY`**: issued, stored in `.env` only (gitignored — never committed, never put in this file)
+
 ## Status
 
 **Done**
@@ -76,29 +83,36 @@ that keeps the key server-side while still running 100% real `@croo-network/sdk`
       scroll-triggered vertical "How It Works" timeline, sticky footer, mobile-responsive header
       and layout (verified via Playwright screenshots at 1280px and 375px).
 - [x] `.jsx` extensions for all component/page/context files.
+- [x] CredentialMint Agent registered on the CROO Dashboard, real `CROO_SDK_KEY` issued and
+      stored in `.env` (gitignored).
+- [x] "Skill Verification Report" Service created (`svc-new-1783696685075`).
+- [x] LICENSE file added (MIT).
+- [x] Confirmed real key authenticates: `server.ts`'s WebSocket connects to `wss://api.croo.network/ws`
+      successfully (previously got a 401 with a placeholder key; now connects clean).
+- [x] Placed a real negotiation against a live third-party Service (DepegGuard's "Stablecoin Depeg
+      Signal", `serviceId 54931089-096a-43b1-812a-ebdc412c58d1`) via `POST /api/verify` — confirms
+      `negotiateOrder` works end-to-end against the live network, not just against ourselves.
 
 **Not done / explicitly out of scope for now**
-- [ ] CredentialMint's own "Skill Verification Report" Service is **not registered** — that's a
-      manual step in the CROO Agent Store dashboard (Register Agent → Configure → Add Service).
-      The SDK has no service-creation method; this can't be automated from code.
-- [ ] No real `CROO_SDK_KEY` configured in this environment — `provider.ts`/`server.ts` are ready
-      to run but need a real key from the Dashboard to actually settle orders.
-- [ ] Live end-to-end test against a real target agent's service hasn't happened yet (needs the
-      above two).
-- [ ] Bulk service *discovery* (list all live services to auto-pick benchmark targets) — the SDK
-      exposes acting on a known `serviceId` but no `listServices`/search method. Flagged as a
-      question for CROO office hours; not blocking, since a buyer supplies the `serviceId` anyway.
+- [ ] Live end-to-end test **not yet confirmed complete** — the DepegGuard negotiation was placed
+      but hadn't reached `OrderCreated`/`payOrder`/`OrderCompleted` as of the last check. Need to
+      confirm a full negotiate → pay → deliver → score cycle finishes.
+- [ ] `benchmark.ts`'s internal timeout (`BENCHMARK_TIMEOUT_MS`) is hardcoded to 5 minutes, shorter
+      than some target services' declared SLA (up to 30 min). Needs raising before relying on this
+      against arbitrary Store agents.
+- [ ] Bulk service *discovery* (list all live services to auto-pick benchmark targets) — the
+      documented SDK has no `listServices`/search method, **but** the Store frontend itself calls
+      an undocumented public REST endpoint, `GET https://api.croo.network/backend/v1/public/agents/{agentId}`,
+      which returns an agent's full service list with real `serviceId`s. Not part of the official
+      SDK surface — worth confirming with CROO before depending on it, but useful for a future
+      "paste an agent link" UX on `/verify` instead of requiring a raw `serviceId`.
 - [ ] In-memory report store (`src/reports.ts`) resets on server restart — fine for a hackathon
       demo, would need a real DB for production.
-- [ ] LICENSE file (need MIT/Apache/similar per submission requirements).
 - [ ] Demo video (max 5 min) and DoraHacks BUIDL filing.
 
 ## Next steps, in order
 
-1. Register the CredentialMint Agent + "Skill Verification Report" Service on
-   agent.croo.network, get a real `CROO_SDK_KEY`.
-2. Run `pnpm run provider` (Store-facing listener) and `pnpm run server` (API bridge for the web
-   client) against real credentials; confirm `pnpm run benchmark` against one live Store service
-   (e.g. `SwapGod`, `Polymarket Smart Wallet Tracker`) end-to-end.
-3. Add a LICENSE file.
+1. Confirm the live DepegGuard test order settles end-to-end (negotiate → pay → deliver → score).
+2. Raise `BENCHMARK_TIMEOUT_MS` to comfortably exceed a 30-min target SLA.
+3. Run `pnpm run provider` so CredentialMint is online and can accept real buyer orders on the Store.
 4. Record the demo video and file the DoraHacks BUIDL.
