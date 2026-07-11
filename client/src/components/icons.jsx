@@ -89,6 +89,19 @@ export const IconUpload = (props) => (
   </Svg>
 );
 
+export const IconCopy = (props) => (
+  <Svg {...props}>
+    <rect x="8.5" y="8.5" width="11" height="11" rx="2" />
+    <path d="M15 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v7.5A1.5 1.5 0 0 0 6 15h2.5" />
+  </Svg>
+);
+
+export const IconCheckSmall = (props) => (
+  <Svg {...props}>
+    <path d="M5 12.5 9.5 17 19 6.5" />
+  </Svg>
+);
+
 /** Brand mark: a minted seal with a verification check — used for the logo and favicon. */
 export const LogoMark = ({ size = 32, ...rest }) => (
   <svg width={size} height={size} viewBox="0 0 32 32" {...rest}>

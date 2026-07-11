@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useCallback, useMemo } from 'react';
 import credentialMintService from '../services/CredentialMintService';
 
 const CredentialMintContext = createContext();
@@ -7,7 +7,7 @@ export const CredentialMintProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const requestVerification = async (payload) => {
+  const requestVerification = useCallback(async (payload) => {
     try {
       setLoading(true);
       setError(null);
@@ -23,9 +23,9 @@ export const CredentialMintProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getVerificationReport = async (reportId) => {
+  const getVerificationReport = useCallback(async (reportId) => {
     try {
       setLoading(true);
       setError(null);
@@ -41,17 +41,20 @@ export const CredentialMintProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const clearError = () => setError(null);
+  const clearError = useCallback(() => setError(null), []);
 
-  const value = {
-    loading,
-    error,
-    requestVerification,
-    getVerificationReport,
-    clearError,
-  };
+  const value = useMemo(
+    () => ({
+      loading,
+      error,
+      requestVerification,
+      getVerificationReport,
+      clearError,
+    }),
+    [loading, error, requestVerification, getVerificationReport, clearError]
+  );
 
   return (
     <CredentialMintContext.Provider value={value}>

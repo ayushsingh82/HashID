@@ -3,18 +3,43 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { colors } from '../theme';
 import credentialMintService from '../services/CredentialMintService';
+import { IconCopy, IconCheckSmall } from '../components/icons';
 
 const DashboardContainer = styled.div`
-  max-width: 1000px;
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
+  padding: 0 24px;
+  font-size: 0.9rem;
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
+
+  p {
+    font-size: 0.85rem;
+  }
 `;
 
 const WelcomeCard = styled.div`
   background: white;
   border: 1px solid ${colors.grey[200]};
   border-radius: 8px;
-  padding: 30px;
-  margin-bottom: 30px;
+  padding: 24px 30px;
+  margin-bottom: 24px;
+
+  h1 {
+    margin-bottom: 6px;
+  }
+
+  p {
+    margin-bottom: 0;
+    color: ${colors.text.secondary};
+  }
 `;
 
 const StatsGrid = styled.div`
@@ -33,15 +58,17 @@ const StatCard = styled.div`
 `;
 
 const StatValue = styled.div`
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
   color: ${colors.primary.main};
 `;
 
 const StatLabel = styled.div`
   color: #757575;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 `;
 
 const TabContent = styled.div`
@@ -62,23 +89,74 @@ const TableScroll = styled.div`
 
 const ReportsTable = styled.table`
   width: 100%;
-  min-width: 640px;
+  min-width: 720px;
+  table-layout: fixed;
   border-collapse: collapse;
+  font-size: 0.85rem;
+
+  th:nth-child(1), td:nth-child(1) { width: 18%; }
+  th:nth-child(2), td:nth-child(2) { width: 20%; }
+  th:nth-child(3), td:nth-child(3) { width: 20%; }
+  th:nth-child(4), td:nth-child(4) { width: 16%; }
+  th:nth-child(5), td:nth-child(5) { width: 18%; }
+  th:nth-child(6), td:nth-child(6) { width: 8%; }
 
   th, td {
-    padding: 12px 15px;
+    padding: 12px 16px;
     text-align: left;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid ${colors.grey[200]};
     white-space: nowrap;
   }
 
   th {
     background-color: #f0fdf4;
-    font-weight: 500;
+    color: ${colors.primary.dark};
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s;
+  }
+
+  tbody tr:hover {
+    background-color: #fafffb;
   }
 
   tr:last-child td {
     border-bottom: none;
+  }
+`;
+
+const IdCell = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.82rem;
+  color: ${colors.text.secondary};
+`;
+
+const CopyButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: transparent;
+  color: ${props => (props.copied ? colors.primary.main : colors.grey[400])};
+  cursor: pointer;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s, background-color 0.15s;
+
+  &:hover {
+    color: ${colors.primary.main};
+    background-color: ${colors.grey[100]};
   }
 `;
 
@@ -87,14 +165,18 @@ const StatusBadge = styled.span`
   padding: 5px 10px;
   border-radius: 20px;
   font-size: 0.8rem;
+  font-weight: 500;
   background-color: ${props => (props.verified ? '#e8f5e9' : '#ffebee')};
   color: ${props => (props.verified ? '#2e7d32' : '#c62828')};
 `;
+
+const truncateId = (id) => (id && id.length > 14 ? `${id.slice(0, 8)}…${id.slice(-4)}` : id);
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,6 +190,12 @@ const Dashboard = () => {
       cancelled = true;
     };
   }, []);
+
+  const handleCopy = (value) => {
+    navigator.clipboard.writeText(value);
+    setCopiedId(value);
+    setTimeout(() => setCopiedId(current => (current === value ? null : current)), 1500);
+  };
 
   const verifiedCount = reports.filter(r => r.verified).length;
   const failedCount = reports.length - verifiedCount;
@@ -161,20 +249,53 @@ const Dashboard = () => {
               <tbody>
                 {reports.map(report => (
                   <tr key={report.id}>
-                    <td>{report.id}</td>
-                    <td>{report.targetServiceId}</td>
+                    <td>
+                      <IdCell title={report.id}>
+                        {truncateId(report.id)}
+                        <CopyButton
+                          copied={copiedId === report.id}
+                          onClick={() => handleCopy(report.id)}
+                          aria-label="Copy report ID"
+                        >
+                          {copiedId === report.id ? <IconCheckSmall size={14} /> : <IconCopy size={14} />}
+                        </CopyButton>
+                      </IdCell>
+                    </td>
+                    <td>
+                      <IdCell title={report.targetServiceId}>
+                        {truncateId(report.targetServiceId)}
+                        <CopyButton
+                          copied={copiedId === report.targetServiceId}
+                          onClick={() => handleCopy(report.targetServiceId)}
+                          aria-label="Copy service ID"
+                        >
+                          {copiedId === report.targetServiceId ? <IconCheckSmall size={14} /> : <IconCopy size={14} />}
+                        </CopyButton>
+                      </IdCell>
+                    </td>
                     <td>{new Date(report.verifiedAt).toLocaleString()}</td>
                     <td>
                       <StatusBadge verified={report.verified}>
                         {report.verified ? 'Verified' : 'Failed'} · {report.score}
                       </StatusBadge>
                     </td>
-                    <td>{report.orderId}</td>
+                    <td>
+                      <IdCell title={report.orderId}>
+                        {truncateId(report.orderId)}
+                        <CopyButton
+                          copied={copiedId === report.orderId}
+                          onClick={() => handleCopy(report.orderId)}
+                          aria-label="Copy order ID"
+                        >
+                          {copiedId === report.orderId ? <IconCheckSmall size={14} /> : <IconCopy size={14} />}
+                        </CopyButton>
+                      </IdCell>
+                    </td>
                     <td>
                       <button
                         className="btn"
                         onClick={() => navigate(`/result?id=${report.id}`)}
-                        style={{ padding: '5px 10px', fontSize: '0.9rem' }}
+                        style={{ padding: '5px 10px', fontSize: '0.82rem' }}
                       >
                         View Details
                       </button>

@@ -8,24 +8,37 @@ import { IconCheck, IconCross } from '../components/icons';
 const ResultContainer = styled.div`
   max-width: 800px;
   margin: 0 auto;
+  font-size: 0.9rem;
 `;
 
 const ResultCard = styled.div`
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  margin-bottom: 30px;
+  padding: 24px;
+  margin-bottom: 24px;
   text-align: center;
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
+  p {
+    font-size: 0.85rem;
+  }
 `;
 
 const StatusIcon = styled.div`
-  font-size: 4rem;
-  margin-bottom: 20px;
+  font-size: 2.5rem;
+  margin-bottom: 14px;
 `;
 
 const ScoreValue = styled.div`
-  font-size: 3rem;
+  font-size: 2.1rem;
   font-weight: 800;
   color: ${colors.primary.main};
   margin-bottom: 4px;
@@ -34,13 +47,15 @@ const ScoreValue = styled.div`
 const VerificationDetails = styled.div`
   background: #f0fdf4;
   border-radius: 8px;
-  padding: 20px;
-  margin-top: 30px;
+  padding: 16px 20px;
+  margin-top: 24px;
   text-align: left;
+  font-size: 0.85rem;
 `;
 
 const DetailItem = styled.div`
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  word-break: break-all;
 
   &:last-child {
     margin-bottom: 0;
@@ -48,7 +63,8 @@ const DetailItem = styled.div`
 
   strong {
     display: inline-block;
-    min-width: 150px;
+    min-width: 130px;
+    word-break: normal;
   }
 `;
 
