@@ -208,6 +208,12 @@ const Dashboard = () => {
       <WelcomeCard>
         <h1>Verification Reports</h1>
         <p>Every skill credential CredentialMint has issued in this session.</p>
+        {reports.length === 0 && !loading && (
+          <p style={{ color: colors.text.secondary, marginTop: '8px', fontSize: '0.85rem' }}>
+            0 tested for the latest session — this API server instance hasn't settled any real CAP
+            orders yet. Submit a verification to populate this dashboard.
+          </p>
+        )}
       </WelcomeCard>
 
       <StatsGrid>

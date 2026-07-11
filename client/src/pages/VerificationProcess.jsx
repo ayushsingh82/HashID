@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useCredentialMint } from '../context/CredentialMintContext';
@@ -142,6 +142,22 @@ const VerificationProcess = () => {
     testInput: ''
   });
 
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const timerRef = useRef(null);
+
+  useEffect(() => {
+    if (loading) {
+      setElapsedSec(0);
+      timerRef.current = setInterval(() => setElapsedSec(s => s + 1), 1000);
+    } else if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [loading]);
+
   const handleNextStep = () => setCurrentStep(currentStep + 1);
   const handlePrevStep = () => setCurrentStep(currentStep - 1);
 
@@ -201,6 +217,9 @@ const VerificationProcess = () => {
               />
               <small style={{ display: 'block', marginTop: '5px', color: '#757575' }}>
                 Paste the raw serviceId only — no prefix, no surrounding whitespace.
+              </small>
+              <small style={{ display: 'block', marginTop: '5px', color: colors.warning.main }}>
+                Make sure the backend (`pnpm run server`) is running on port 4000, or this request will fail.
               </small>
             </FormGroup>
 
@@ -267,8 +286,16 @@ const VerificationProcess = () => {
               <p style={{ color: colors.error.main, marginBottom: '20px' }}>{formError}</p>
             )}
 
+            {loading && (
+              <p style={{ color: colors.text.secondary, fontSize: '0.85rem', marginBottom: '20px' }}>
+                Placing a real CAP order — negotiate → pay → wait for the target agent to deliver.
+                This is genuine on-chain settlement, typically 1–3 minutes, not a stuck request.
+                Elapsed: <strong>{elapsedSec}s</strong>
+              </p>
+            )}
+
             <ButtonContainer>
-              <button className="btn" onClick={handlePrevStep} style={{ backgroundColor: '#757575' }}>
+              <button className="btn" onClick={handlePrevStep} style={{ backgroundColor: '#757575' }} disabled={loading}>
                 Previous
               </button>
               <button
@@ -276,7 +303,7 @@ const VerificationProcess = () => {
                 onClick={handleSubmit}
                 disabled={loading}
               >
-                {loading ? 'Benchmarking...' : 'Submit for Verification'}
+                {loading ? `Benchmarking... ${elapsedSec}s` : 'Submit for Verification'}
               </button>
             </ButtonContainer>
           </>
