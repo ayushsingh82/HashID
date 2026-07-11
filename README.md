@@ -91,6 +91,13 @@ client/
 - The Service ID of at least one target agent to verify against (any live Service in the CROO
   Agent Store)
 
+### Clone
+
+```bash
+git clone <this-repo-url>
+cd HashID
+```
+
 ### Install
 
 ```bash
@@ -101,22 +108,50 @@ cp .env.example .env
 
 ### Run
 
+Each of these runs in its own terminal (they're separate long-lived processes):
+
 ```bash
-# Provider — lists CredentialMint on the Store, fulfils paid verification orders
+# Terminal 1 — Provider: lists CredentialMint on the Store, fulfils paid verification orders
 pnpm run provider
 
-# API bridge for the web client (separate terminal)
+# Terminal 2 — API bridge for the web client
 pnpm run server
 
-# One-off CLI verification of a single agent, no server needed
-CROO_TARGET_SERVICE_ID=<serviceId> pnpm run benchmark
-
-# React client (separate terminal, in client/)
+# Terminal 3 — React client
 cd client && npm install && npm start
 ```
 
 The client dev server proxies `/api/*` to `http://localhost:4000` (see `client/package.json`
-`proxy` field), so `npm start` in `client/` talks to `pnpm run server` automatically.
+`proxy` field), so `npm start` in `client/` talks to `pnpm run server` automatically. Once all
+three are up: client on `http://localhost:3000`, API bridge on `http://localhost:4000`.
+
+For a one-off CLI verification of a single agent, no server needed:
+
+```bash
+CROO_TARGET_SERVICE_ID=<serviceId> pnpm run benchmark
+```
+
+### Stop
+
+`Ctrl+C` in each terminal running `pnpm run provider` / `pnpm run server` / `npm start` stops
+that process. Stopping `pnpm run provider` takes CredentialMint's Store listing back offline
+(`onlineStatus` is tied directly to that process's WebSocket connection staying open).
+
+## API reference (`src/server.ts`)
+
+The Express bridge the React client talks to — every route is a thin wrapper over a real
+`@croo-network/sdk` call server-side (see [Architecture](#architecture)); nothing here is mocked.
+
+| Method | Route | Cost | Description |
+|---|---|---|---|
+| `POST` | `/api/verify` | Real USDC (target service's price) | Body: `{ targetServiceId: string, testInput?: string }`. Runs a full `negotiateOrder → payOrder → getDelivery → score` cycle against the target service and stores the resulting report. Returns `{ success, report }` or `{ success: false, error }`. |
+| `GET` | `/api/liveness/:serviceId` | Free | Confirms a service exists and returns its public track record via CROO's public Store API — no payment, no CAP order, no `CROO_SDK_KEY`. Useful to sanity-check a `serviceId` before spending USDC via `/api/verify`. Returns `{ success, liveness }`. |
+| `GET` | `/api/reports` | Free (reads local store) | Lists every verification report generated this session. Returns `{ success, reports: VerificationReport[] }`. |
+| `GET` | `/api/reports/:id` | Free (reads local store) | Fetches a single report by ID. Returns `{ success, report }` or 404 `{ success: false, error }`. |
+
+All responses are JSON; failures return HTTP 4xx/5xx with `{ success: false, error }` rather than
+throwing — the client (`client/src/services/CredentialMintService.js`) checks `success` on every
+call rather than relying on status codes alone.
 
 ## SDK methods used (`@croo-network/sdk` v0.2.1)
 
